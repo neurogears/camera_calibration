@@ -46,7 +46,7 @@ public class CalibrateCameraCharuco
                     distCoeffs,
                     out rvecs,
                     out tvecs,
-                    CalibrationFlags | CalibrationFlags.UseIntrinsicGuess | CalibrationFlags.FixPrincipalPoint,
+                    CalibrationFlags | CalibrationFlags.UseIntrinsicGuess,
                     TermCriteria.Both(10000, 1e-9));
 
                 return new CameraCalibration

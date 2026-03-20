@@ -87,6 +87,7 @@ public class FindCharucoBoard
                         chessboardCorners[i].Z = 0;
                     }
 
+                    board.BoardSize = boardSize;
                     board.ImageSize = inputArray.Size();
                     board.ObjectCorners = Array.ConvertAll(board.CharucoIds, i => chessboardCorners[i]);
                 }
@@ -101,6 +102,7 @@ public struct CharucoBoard
 {
     public IplImage Image;
     public OpenCvSharp.Size ImageSize;
+    public Size BoardSize;
     public OpenCvSharp.Point2f[] CharucoCorners;
     public int[] CharucoIds;
     public OpenCvSharp.Point2f[][] MarkerCorners;
