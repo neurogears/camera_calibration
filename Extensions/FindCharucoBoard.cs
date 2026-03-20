@@ -59,7 +59,7 @@ public class FindCharucoBoard
                         out board.MarkerCorners,
                         out board.MarkerIds);
 
-                    if (InterpolateCorners)
+                    if (board.CharucoCorners.Length > 0 && InterpolateCorners)
                         CvAruco.InterpolateCornersCharuco(
                             grayTemp,
                             boardSize.Width,
