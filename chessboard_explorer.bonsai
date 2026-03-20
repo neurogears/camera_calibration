@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.9.0"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns:p1="clr-namespace:;assembly=Extensions"
+                 xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:ui="clr-namespace:Bonsai.Design;assembly=Bonsai.Design"
+                 xmlns:p2="clr-namespace:Bonsai.Vision.Design;assembly=Bonsai.Vision.Design"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:FileCapture">
+          <cv:FileName>Videos\6.avi</cv:FileName>
+          <cv:PlaybackRate>0</cv:PlaybackRate>
+          <cv:StartPosition>0</cv:StartPosition>
+          <cv:PositionUnits>Frames</cv:PositionUnits>
+          <cv:Loop>false</cv:Loop>
+          <cv:Playing>true</cv:Playing>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="cv:Undistort">
+            <cv:ImageSize xsi:nil="true" />
+            <cv:Alpha>0</cv:Alpha>
+            <cv:FocalLength>
+              <cv:X>1159.61697993917</cv:X>
+              <cv:Y>1159.61697993917</cv:Y>
+            </cv:FocalLength>
+            <cv:PrincipalPoint>
+              <cv:X>720</cv:X>
+              <cv:Y>540</cv:Y>
+            </cv:PrincipalPoint>
+            <cv:RadialDistortion>
+              <cv:X>-0.39803142239389</cv:X>
+              <cv:Y>0.226846813931825</cv:Y>
+              <cv:Z>0.000885629972917182</cv:Z>
+            </cv:RadialDistortion>
+            <cv:TangentialDistortion>
+              <cv:X>0</cv:X>
+              <cv:Y>0</cv:Y>
+            </cv:TangentialDistortion>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:FindCharucoBoard">
+          <p1:BoardSize>
+            <p1:Width>8</p1:Width>
+            <p1:Height>6</p1:Height>
+          </p1:BoardSize>
+          <p1:SquareLength>60</p1:SquareLength>
+          <p1:MarkerLength>45</p1:MarkerLength>
+          <p1:Dictionary>Dict4X4_50</p1:Dictionary>
+          <p1:SubPixelRegion>
+            <p1:Width>3</p1:Width>
+            <p1:Height>3</p1:Height>
+          </p1:SubPixelRegion>
+          <p1:InterpolateCorners>true</p1:InterpolateCorners>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:Visualizer">
+        <Name>DrawBoard</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p1:DrawCharucoBoard" />
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="ui:VisualizerWindow">
+        <ui:VisualizerType xsi:type="TypeMapping" TypeArguments="p2:IplImageVisualizer" />
+        <ui:Text>DrawBoard</ui:Text>
+        <ui:Visible>true</ui:Visible>
+        <ui:Location xsi:nil="true" />
+        <ui:Size xsi:nil="true" />
+        <ui:WindowState xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="rx:Condition">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>CharucoCorners.Length</Selector>
+            </Expression>
+            <Expression xsi:type="GreaterThan">
+              <Operand xsi:type="IntProperty">
+                <Value>6</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="rx:BufferCount">
+            <rx:Count>10</rx:Count>
+            <rx:Skip xsi:nil="true" />
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:AppendList" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:CalibrateCameraCharuco">
+          <p1:CalibrationFlags>UseIntrinsicGuess</p1:CalibrationFlags>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>ReprojectionError</Selector>
+      </Expression>
+      <Expression xsi:type="ui:VisualizerWindow">
+        <ui:Text>ReprojectionError</ui:Text>
+        <ui:Visible>true</ui:Visible>
+        <ui:Location xsi:nil="true" />
+        <ui:Size xsi:nil="true" />
+        <ui:WindowState xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p1:GetCharucoBoardKeyPoints" />
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="rx:Condition">
+          <Workflow>
+            <Nodes>
+              <Expression xsi:type="WorkflowInput">
+                <Name>Source1</Name>
+              </Expression>
+              <Expression xsi:type="MemberSelector">
+                <Selector>Count</Selector>
+              </Expression>
+              <Expression xsi:type="GreaterThan">
+                <Operand xsi:type="IntProperty">
+                  <Value>6</Value>
+                </Operand>
+              </Expression>
+              <Expression xsi:type="WorkflowOutput" />
+            </Nodes>
+            <Edges>
+              <Edge From="0" To="1" Label="Source1" />
+              <Edge From="1" To="2" Label="Source1" />
+              <Edge From="2" To="3" Label="Source1" />
+            </Edges>
+          </Workflow>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p1:AppendList" />
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="cv:CalibrateCameraChessboard">
+            <cv:PatternSize>
+              <cv:Width>8</cv:Width>
+              <cv:Height>6</cv:Height>
+            </cv:PatternSize>
+            <cv:CalibrationFlags>FixPrincipalPoint</cv:CalibrationFlags>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>ReprojectionError</Selector>
+        </Builder>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+      <Edge From="4" To="5" Label="Source1" />
+      <Edge From="4" To="11" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="9" To="10" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="14" To="15" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
